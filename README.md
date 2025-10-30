@@ -40,7 +40,7 @@ The trained weights were contracted into a 3rd-order tensor `T[i,j,k]` represent
 
 **Singular Value Analysis**: The ratio between consecutive singular values (~1.1) indicates the representation is **NOT low-rank**. This suggests modular addition requires distributed multi-dimensional interactions rather than simple linear projections.
 
-![Eigenvector Analysis](results/eigenvector_analysis.png)
+![Eigenvector Analysis](results/eigenvectors.png)
 
 ### Key Observations
 

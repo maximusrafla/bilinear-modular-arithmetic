@@ -40,7 +40,7 @@ The trained weights were contracted into a 3rd-order tensor `T[i,j,k]` represent
 
 **Singular Value Analysis**: The ratio between consecutive singular values (~1.1) indicates the representation is **NOT low-rank**. This suggests modular addition requires distributed multi-dimensional interactions rather than simple linear projections.
 
-![Eigenvector Analysis](results/eigenvector_analysis.png)
+![Eigenvector Analysis](results/eigenvectors.png)
 
 ### Key Observations
 
@@ -148,9 +148,9 @@ Despite complexity, tensor networks provide:
 If you use this code or build upon this work, please cite the original bilinear layer paper:
 
 ```bibtex
-@article{bilinear2024,
-  title={Bilinear Layers Enable Rapid Learning and Prediction in Sequence Transformers},
-  author={...},
+@article{pearce2024bilinear,
+  title={Bilinear MLPs enable weight-based mechanistic interpretability},
+  author={Pearce, Michael T. and Dooms, Thomas and Rigg, Alice and Oramas, Jose M. and Sharkey, Lee},
   journal={arXiv preprint arXiv:2410.08417},
   year={2024}
 }

@@ -1,0 +1,114 @@
+{
+  "args": {
+    "what": "both",
+    "seeds": [
+      0,
+      1,
+      2,
+      42
+    ],
+    "lrs": [
+      0.001,
+      0.003
+    ],
+    "wds": [
+      0.1,
+      0.3,
+      1.0,
+      3.0,
+      10.0
+    ],
+    "p": 113,
+    "hidden_dim": 256,
+    "train_frac": 0.3,
+    "epochs": 25000,
+    "lr": 0.001,
+    "weight_decay": 1.0,
+    "seed": 42,
+    "device": "cuda"
+  },
+  "rows": [
+    {
+      "seed": 0,
+      "train_acc": 0.9999999403953552,
+      "test_acc": 1.0,
+      "grok_epoch": 4000,
+      "purity": 0.9473022371530533,
+      "ab_frequency_match": 1.0,
+      "n_freqs_for_90pct": 44,
+      "cross_block_r2": 0.876390800380124,
+      "n_freqs_sufficient": 8,
+      "n_freqs_deletable": 30
+    },
+    {
+      "seed": 1,
+      "train_acc": 0.9999999403953552,
+      "test_acc": 1.0,
+      "grok_epoch": 4400,
+      "purity": 0.9480711668729782,
+      "ab_frequency_match": 1.0,
+      "n_freqs_for_90pct": 43,
+      "cross_block_r2": 0.9029457770786585,
+      "n_freqs_sufficient": 5,
+      "n_freqs_deletable": 30
+    },
+    {
+      "seed": 2,
+      "train_acc": 0.9999999403953552,
+      "test_acc": 1.0,
+      "grok_epoch": 4200,
+      "purity": 0.9482018798589706,
+      "ab_frequency_match": 1.0,
+      "n_freqs_for_90pct": 44,
+      "cross_block_r2": 0.9035180735542165,
+      "n_freqs_sufficient": 8,
+      "n_freqs_deletable": 30
+    },
+    {
+      "seed": 42,
+      "train_acc": 0.9999999403953552,
+      "test_acc": 1.0,
+      "grok_epoch": 4400,
+      "purity": 0.9496710300445557,
+      "ab_frequency_match": 1.0,
+      "n_freqs_for_90pct": 42,
+      "cross_block_r2": 0.9038652956986554,
+      "n_freqs_sufficient": 5,
+      "n_freqs_deletable": 30
+    }
+  ],
+  "range": {
+    "test_acc": {
+      "min": 1.0,
+      "max": 1.0
+    },
+    "grok_epoch": {
+      "min": 4000,
+      "max": 4400
+    },
+    "purity": {
+      "min": 0.9473022371530533,
+      "max": 0.9496710300445557
+    },
+    "ab_frequency_match": {
+      "min": 1.0,
+      "max": 1.0
+    },
+    "n_freqs_for_90pct": {
+      "min": 42,
+      "max": 44
+    },
+    "cross_block_r2": {
+      "min": 0.876390800380124,
+      "max": 0.9038652956986554
+    },
+    "n_freqs_sufficient": {
+      "min": 5,
+      "max": 8
+    },
+    "n_freqs_deletable": {
+      "min": 30,
+      "max": 30
+    }
+  }
+}

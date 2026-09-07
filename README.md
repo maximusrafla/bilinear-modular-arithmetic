@@ -10,10 +10,15 @@ form, so weight-space analysis is analytic rather than approximate
 method to MNIST and to language models. It does not cover modular addition, which
 is what this repo does.
 
-Every number below comes from code in this repo. The main results are written
-by `run_all.py` into `results/*_metrics.json`; the width table comes from
-`width_sweep.py`, and the hyperparameter table from `train.py` run at each
-setting.
+Every number below comes from code in this repo, and every table is backed by a
+committed JSON file you can check it against:
+
+| claim | produced by | artifact |
+|---|---|---|
+| main results | `run_all.py` | `results/grok_metrics.json`, `results/memorize_metrics.json` |
+| width table | `width_sweep.py` | `results/width_sweep.json` |
+| seed table | `sweeps.py` | `results/seed_sweep.json` |
+| hyperparameter table | `sweeps.py` | `results/hparam_sweep.json` |
 
 ## The headline result
 
@@ -110,16 +115,28 @@ to the task rather than to the training regime.
 | σ₁/σ₂ of the full `B_k` | 1.06 | 1.26 |
 
 Note the last row. σ₁/σ₂ is near 1 for both, and slightly *higher* for the
-memorizer — a Fourier circuit puts each frequency into a degenerate cos/sin
-pair, so a ratio near 1 is what clean low-rank structure predicts, not evidence
-against it.
+memorizer. The reason it cannot work as a test is worth spelling out. A single
+Fourier term in the cross block is
 
-None of this is a single-seed accident. Repeating the grokked run at
-`--seed 0/1/2` alongside the default 42 gives test accuracy 1.000 every time,
-purity 0.947–0.950, `a`/`b` frequency agreement 1.000, 42–45 frequencies used,
-`B_ab` R² of 0.876–0.913, a sufficient set of 5–8 frequencies, and exactly 30
-deletable frequencies in all four runs. Grokking onset varies most, between
-epochs 3,400 and 4,600.
+```
+C[a,b] = cos(θ_a + θ_b - φ)  =  cos(θ_a-φ)·cos(θ_b)  -  sin(θ_a-φ)·sin(θ_b)
+```
+
+with `θ_a = 2πwa/P`. That is exactly rank 2, and both outer products have the
+same norm, since `‖cos‖ = ‖sin‖ = √(P/2)` over a full period. So a *clean*
+single-frequency circuit gives `σ₁ = σ₂` exactly. A ratio near 1 is the
+signature of Fourier structure, not evidence against it — which is why the old
+reading of ≈ 1.1 pointed the wrong way.
+
+None of this is a single-seed accident. `sweeps.py` repeats the grokked run at
+seeds 0, 1, 2, 42, varying **both** the initialisation and the train/test split, so
+each row is an independent experiment rather than a re-initialisation on a fixed
+split. Across all four: test accuracy 1.000 and `a`/`b` frequency
+agreement 1.000 every time, with exactly
+30 deletable frequencies in every run; purity
+0.947–0.950, 42–44 frequencies used, `B_ab` R²
+0.876–0.904, sufficient set 5–8. Grokking
+onset varies most, 4000–4400 epochs. Rows: `results/seed_sweep.json`.
 
 One honest asymmetry: the grokked model's *predictions* commute perfectly, but
 its *logits* do not (relative asymmetry 0.855). Nothing in the training set
@@ -135,14 +152,23 @@ The complete input space is 113² = 12,769 pairs, enumerated exactly and split
 
 ![Training curves](results/grok_training_curves.png)
 
-It is also robust to hyperparameters. Every setting with `wd <= 3` reaches at
-least 99% test accuracy; only `wd=10` fails. Each cell is
-`train.py --lr <lr> --weight-decay <wd>`:
+It is also robust to hyperparameters, though not unconditionally. Eight of the
+ten settings below reach 100% test accuracy at the default 25,000 epochs.
+`wd=10` is too strong and fails at both learning rates. `wd=0.1` is too weak at
+`lr=1e-3`: it is still climbing when training stops, having not yet crossed 90%
+— but it succeeds at the larger learning rate. From
+`results/hparam_sweep.json`:
 
-| final test acc | wd=0.1 | wd=0.3 | wd=1.0 | wd=3.0 | wd=10.0 |
+| final test acc | wd=0.1 | wd=0.3 | wd=1 | wd=3 | wd=10 |
 |---|---|---|---|---|---|
-| **lr 1e-3** | 0.990 | 1.000 | **1.000** | 1.000 | 0.209 |
-| **lr 3e-3** | 1.000 | 1.000 | 1.000 | 1.000 | 0.897 |
+| **lr 1e-3** | 0.897 | 1.000 | **1.000** | 1.000 | 0.183 |
+| **lr 3e-3** | 1.000 | 1.000 | 1.000 | 1.000 | 0.862 |
+
+![Seed and hyperparameter sweeps](results/sweeps.png)
+
+Grokking onset moves a lot inside the working region — epoch 1,200 at
+`lr=3e-3, wd=1` against 9,200 at `lr=1e-3, wd=0.3` — which is worth knowing
+before concluding from a single short run that a setting does not generalise.
 
 ## Reproducing
 
@@ -150,6 +176,7 @@ least 99% test accuracy; only `wd=10` fails. Each cell is
 pip install -r requirements.txt
 python run_all.py          # trains both runs + full analysis, ~3 min on a GPU
 python width_sweep.py      # the width experiment, ~10 min
+python sweeps.py           # seed + hyperparameter sweeps, ~15 min
 ```
 
 Or step by step:
@@ -166,7 +193,8 @@ python analyze.py --name grok --compare memorize
 | `train.py` | training with a real train/test split; logs test metrics throughout |
 | `analyze.py` | all weight-space analysis; writes `results/<run>_metrics.json` |
 | `width_sweep.py` | frequency count vs hidden width |
-| `run_all.py` | reproduces every figure and number in this README |
+| `sweeps.py` | seed sweep and hyperparameter grid |
+| `run_all.py` | trains both runs, then runs the full analysis on each |
 
 Architecture: `226 → 256 → 113`, no biases (a bias would add linear and constant
 terms and break the exact quadratic contraction). **144,640 parameters.**

@@ -20,6 +20,14 @@ committed JSON file you can check it against:
 | seed table | `sweeps.py` | `results/seed_sweep.json` |
 | hyperparameter table | `sweeps.py` | `results/hparam_sweep.json` |
 
+`python verify.py` re-derives every number quoted above — in the tables *and in
+the prose* — from those files and exits nonzero on any mismatch. The prose is
+checked because that is where the last two errors lived: a table cell copied
+from a 30,000-epoch run into a section documenting the 25,000-epoch default,
+and a sentence saying eight settings generalised when eight is the number that
+ever crossed 90% and seven is the number still there at the end. A check that
+compares only cells to JSON passes both.
+
 ## The headline result
 
 Each hidden neuron reads `a` and `b` through its own pair of length-113
@@ -152,12 +160,15 @@ The complete input space is 113² = 12,769 pairs, enumerated exactly and split
 
 ![Training curves](results/grok_training_curves.png)
 
-It is also robust to hyperparameters, though not unconditionally. Eight of the
-ten settings below reach 100% test accuracy at the default 25,000 epochs.
-`wd=10` is too strong and fails at both learning rates. `wd=0.1` is too weak at
-`lr=1e-3`: it is still climbing when training stops, having not yet crossed 90%
-— but it succeeds at the larger learning rate. From
-`results/hparam_sweep.json`:
+It is also robust to hyperparameters, though not unconditionally. **Seven** of
+the ten settings below reach 100% test accuracy at the default 25,000 epochs.
+The three that miss fail in two different ways. `wd=0.1` at `lr=1e-3` is too
+weak: it is still climbing when training stops, having not yet crossed 90%,
+and it succeeds at the larger learning rate. `wd=10` fails at both rates — but
+only at `lr=1e-3` is it simply too strong. At `lr=3e-3` it crosses 90% at epoch
+5,400 and then *decays* to 0.862 by 25,000, so the count of runs that ever
+generalise (eight) is not the count that still generalise at the end (seven).
+From `results/hparam_sweep.json`:
 
 | final test acc | wd=0.1 | wd=0.3 | wd=1 | wd=3 | wd=10 |
 |---|---|---|---|---|---|
@@ -177,6 +188,7 @@ pip install -r requirements.txt
 python run_all.py          # trains both runs + full analysis, ~3 min on a GPU
 python width_sweep.py      # the width experiment, ~10 min
 python sweeps.py           # seed + hyperparameter sweeps, ~15 min
+python verify.py           # re-check every README number against the JSON
 ```
 
 Or step by step:
@@ -195,6 +207,7 @@ python analyze.py --name grok --compare memorize
 | `width_sweep.py` | frequency count vs hidden width |
 | `sweeps.py` | seed sweep and hyperparameter grid |
 | `run_all.py` | trains both runs, then runs the full analysis on each |
+| `verify.py` | re-checks every number in this README against `results/*.json` |
 
 Architecture: `226 → 256 → 113`, no biases (a bias would add linear and constant
 terms and break the exact quadratic contraction). **144,640 parameters.**
